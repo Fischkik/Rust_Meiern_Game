@@ -1,3 +1,4 @@
+use rand::Rng;
 use std::io::{self, BufRead};
 
 /*  Spiel regeln
@@ -12,8 +13,19 @@ Niedriger luegen ist erlaubt
 21 ist die Hoechste zahl
 Pashe sind darunter */
 
+#[derive(Debug)]
+struct Spieler {
+    namen: String,
+    punktzahl: i32,
+    ist_bot: bool,
+    verhaltens_typ: char,
+}
+
 fn create_game() {
+    let valid_behavior: [char; 3] = ['v', 'm', 'n'];
+    let mut results = vec![];
     let mut player_count_str: String = String::new();
+
     println!("Enter the number of Players");
     io::stdin()
         .read_line(&mut player_count_str)
@@ -34,6 +46,9 @@ fn create_game() {
         let mut str_behavior = String::new();
         io::stdin().read_line(&mut str_behavior).unwrap();
         let verhaltens_typ = str_behavior.trim().chars().next().unwrap_or('n');
+        if !(&valid_behavior.contains(&verhaltens_typ)) {
+            panic!("Not a valid behavior type");
+        }
 
         // --- Read bool ---
         println!("Is this player a CPU? (true/false):");
@@ -42,31 +57,53 @@ fn create_game() {
         let ist_bot: bool = str_ist_bot.trim().parse().unwrap_or(false);
 
         // --- Call the function ---
-        // let value = create_player(name, verhaltens_typ, ist_bot);
+        let value = create_player(name, verhaltens_typ, ist_bot);
 
         // --- Append result to list ---
-        // results.push(value);
+        results.push(value);
     }
+    for i in &results {
+        println!("{:?}", i);
+    }
+
+    play_game(results);
 }
 //
-fn create_player(name: String, verhaltens_typ: char, ist_bot: bool) {
+fn create_player(name: String, verhaltens_typ: char, ist_bot: bool) -> Spieler {
     let erstellter_spieler = Spieler {
         namen: String::from(name),
         punktzahl: 0,
         ist_bot: ist_bot,
         verhaltens_typ: verhaltens_typ,
     };
+    return erstellter_spieler;
 }
 //
-// fn play_game(spieler_liste: &mut Vec<Spieler>, wuerfel_liste: &[Wuerfel; 3]) {}
-//
+fn play_game(spieler_liste: Vec<Spieler>) {
+    let moegliche_wuerfe_array: [u8; 21] = [
+        31, 32, 41, 42, 43, 51, 52, 53, 54, 61, 62, 63, 64, 65, 11, 22, 33, 44, 55, 66, 21,
+    ];
+    println!("Game Start");
+    loop {
+        for sp in spieler_liste {
+            println!("{}'s turn", sp.namen);
+            println!("roling Dice");
+        }
+        wuerfel_wurf(moegliche_wuerfe_array);
+    }
+}
+
 // fn fninish_game(spieler_liste: &mut Vec<Spieler>, wuerfel_liste: &[Wuerfel; 3]) {}
 //
 // fn anzweifeln(wurf: &u8, ansage: &u8) -> bool {}
 //
 // fn ansagen(moegliche_werte: &[u8; 21]) -> u8 {}
 //
-// fn wuerfel_wurf(moegliche_werte: &[u8; 21]) -> u8 {}
+fn wuerfel_wurf(moegliche_werte: &[u8; 21]) -> u8 {
+    let wert_index = rand::random_range(0..=22);
+    moegliche_werte.get(wert_index)
+}
+
 //
 // fn create_wuerfel(augenzahl: Option<u16>) -> Vec<u16> {
 //     let augenzahl: u16 = augenzahl.unwrap_or(6);
@@ -78,22 +115,15 @@ fn create_player(name: String, verhaltens_typ: char, ist_bot: bool) {
 // }
 
 fn main() {
-    struct Spieler {
-        namen: String,
-        punktzahl: i32,
-        ist_bot: bool,
-        verhaltens_typ: char,
-    }
-
     // struct Wuerfel {
     //     augenzahl: Vec<u16>,
     // }
     //
-    let moegliche_wuerfe_array: [u8; 21] = [
-        31, 32, 41, 42, 43, 51, 52, 53, 54, 61, 62, 63, 64, 65, 11, 22, 33, 44, 55, 66, 21,
-    ];
-
-    // let wuerfel1_augenzahl: Vec<u16> = create_wuerfel(None);
+    // let moegliche_wuerfe_array: [u8; 21] = [
+    //     31, 32, 41, 42, 43, 51, 52, 53, 54, 61, 62, 63, 64, 65, 11, 22, 33, 44, 55, 66, 21,
+    // ];
+    //
+    // // let wuerfel1_augenzahl: Vec<u16> = create_wuerfel(None);
     // let wuerfel2_augenzahl: Vec<u16> = create_wuerfel(None);
     //
     // let wuerfel1: Wuerfel = Wuerfel {
@@ -105,6 +135,7 @@ fn main() {
     //
     // println!("{}", "-".repeat(20));
     println!("If you wich to start the game press enter");
+    // this is means just take any input and do nothing with it
     io::stdin().lock().lines().next();
     println!("Initilizing game");
     create_game();
