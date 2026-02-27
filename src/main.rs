@@ -1,4 +1,4 @@
-use rand::Rng;
+use rand;
 use std::io::{self, BufRead};
 
 /*  Spiel regeln
@@ -22,45 +22,77 @@ struct Spieler {
 }
 
 fn create_game() {
-    let valid_behavior: [char; 3] = ['v', 'm', 'n'];
+    let valid_behavior: [char; 4] = ['v', 'm', 'n', 'r'];
     let mut results = vec![];
     let mut player_count_str: String = String::new();
+    let mut player_count: u32;
+    let mut cpu_count_str: String = String::new();
+    let mut cpu_count: u32;
 
-    println!("Enter the number of Players");
-    io::stdin()
-        .read_line(&mut player_count_str)
-        .expect("Failed procesing user input for Player count");
-    let player_count: u32 = player_count_str
-        .trim()
-        .parse()
-        .expect("Failed to convert the user inpu into an integar");
-    for i in 0..player_count {
+    loop {
+        player_count_str.clear();
+        println!("Enter the number of Players");
+        io::stdin()
+            .read_line(&mut player_count_str)
+            .expect("Failed procesing user input for Player count");
+        player_count = match player_count_str.trim().parse() {
+            Ok(number_player) => number_player,
+            Err(_) => {
+                println!("Failed to convert the user input into an integar");
+                continue;
+            }
+        };
+
+        cpu_count_str.clear();
+        println!("Enter the number of CPU Players");
+        io::stdin()
+            .read_line(&mut cpu_count_str)
+            .expect("Failed processing user input for Cpu count");
+        cpu_count = match cpu_count_str.trim().parse() {
+            Ok(number_cpu) => number_cpu,
+            Err(_) => {
+                println!("Failed to convert the user intpu into an integar");
+                continue;
+            }
+        };
+
+        if cpu_count > player_count - 1 {
+            println!("cpu count to high");
+            continue;
+        }
+        break;
+    }
+    for x in 0..cpu_count {
+        let cpu_name: String = format!("payer{}", (x + 1));
+        let behavior_index: usize = rand::random_range(0..(valid_behavior.len() - 1));
+        let behavior: char = *valid_behavior
+            .get(behavior_index)
+            .expect("Failed during reading behavior");
+        let ist_bot: bool = true;
+        let cpu = create_player(cpu_name, behavior, ist_bot);
+        results.push(cpu);
+    }
+
+    for i in 0..(player_count - cpu_count) {
         // --- Read name ---
         println!("Enter name:");
         let mut str_name = String::new();
-        io::stdin().read_line(&mut str_name).unwrap();
+        io::stdin()
+            .read_line(&mut str_name)
+            .expect("Failed processing user input for Player name");
         let name = str_name.trim().to_string();
 
         // --- Read behavior ---
-        println!("Enter behavior (v)orsichtig / (m)utig / (n)ormal:");
-        let mut str_behavior = String::new();
-        io::stdin().read_line(&mut str_behavior).unwrap();
-        let verhaltens_typ = str_behavior.trim().chars().next().unwrap_or('n');
-        if !(&valid_behavior.contains(&verhaltens_typ)) {
-            panic!("Not a valid behavior type");
-        }
+        let verhaltens_typ: char = 'r';
 
         // --- Read bool ---
-        println!("Is this player a CPU? (true/false):");
-        let mut str_ist_bot = String::new();
-        io::stdin().read_line(&mut str_ist_bot).unwrap();
-        let ist_bot: bool = str_ist_bot.trim().parse().unwrap_or(false);
+        let ist_bot: bool = false;
 
         // --- Call the function ---
-        let value = create_player(name, verhaltens_typ, ist_bot);
+        let player = create_player(name, verhaltens_typ, ist_bot);
 
         // --- Append result to list ---
-        results.push(value);
+        results.push(player);
     }
     for i in &results {
         println!("{:?}", i);
@@ -85,23 +117,28 @@ fn play_game(spieler_liste: Vec<Spieler>) {
     ];
     println!("Game Start");
     loop {
-        for sp in spieler_liste {
+        for sp in &spieler_liste {
             println!("{}'s turn", sp.namen);
             println!("roling Dice");
+            let wurf: u8 = wuerfel_wurf(&moegliche_wuerfe_array);
+            println!("rolled {}", wurf);
         }
-        wuerfel_wurf(moegliche_wuerfe_array);
+        break;
     }
 }
 
-// fn fninish_game(spieler_liste: &mut Vec<Spieler>, wuerfel_liste: &[Wuerfel; 3]) {}
+// fn fninish_game(spieler_liste: &mut Vec<Spieler>) {}
 //
 // fn anzweifeln(wurf: &u8, ansage: &u8) -> bool {}
 //
 // fn ansagen(moegliche_werte: &[u8; 21]) -> u8 {}
 //
 fn wuerfel_wurf(moegliche_werte: &[u8; 21]) -> u8 {
-    let wert_index = rand::random_range(0..=22);
-    moegliche_werte.get(wert_index)
+    let wert_index: usize = rand::random_range(0..21);
+    let wurf_wert: u8 = *moegliche_werte
+        .get(wert_index)
+        .expect("Failed during wuerfel_werfen");
+    return wurf_wert;
 }
 
 //
