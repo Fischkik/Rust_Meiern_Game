@@ -131,7 +131,10 @@ fn play_game(spieler_liste: Vec<Spieler>) {
 //
 // fn anzweifeln(wurf: &u8, ansage: &u8) -> bool {}
 //
-// fn ansagen(moegliche_werte: &[u8; 21]) -> u8 {}
+fn ansagen(moegliche_werte: &[u8; 21], spieler: &Spieler, echter_wurf: &u8) -> u8 {
+    let angesagte_zahl: u8;
+    if *spieler.ist_bot == true {}
+}
 //
 fn wuerfel_wurf(moegliche_werte: &[u8; 21]) -> u8 {
     let wert_index: usize = rand::random_range(0..21);
