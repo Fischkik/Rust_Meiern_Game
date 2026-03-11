@@ -131,9 +131,28 @@ fn play_game(spieler_liste: Vec<Spieler>) {
 //
 // fn anzweifeln(wurf: &u8, ansage: &u8) -> bool {}
 //
-fn ansagen(moegliche_werte: &[u8; 21], spieler: &Spieler, echter_wurf: &u8) -> u8 {
+fn ansagen_ki_spieler(moegliche_werte: &[u8; 21], echter_wurf: u8) -> u8 {
     let angesagte_zahl: u8;
-    if *spieler.ist_bot == true {}
+    let echter_wurf_index: usize;
+    let moegliche_ansage;
+    if let Some(index) = moegliche_werte.iter().position(|&i| i == echter_wurf) {
+        echter_wurf_index = index;
+    } else {
+        panic!("Failed Reading the index of the dice roll");
+    }
+    moegliche_ansage = &moegliche_werte[echter_wurf_index..];
+    if let Some(ansage_option) = moegliche_ansage.get(rand::random_range(0..moegliche_werte.len()))
+    {
+        angesagte_zahl = *ansage_option;
+    } else {
+        panic!("Failed Creating a Ansage ");
+    }
+    return angesagte_zahl;
+}
+
+fn ansagen_spieler(moegliche_werte: &[u8; 21], echter_wurf: &u8) -> u8 {
+    let angesagte_zahl: u8;
+    let echter_wurf_index = moegliche_werte.get(echter_wurf);
 }
 //
 fn wuerfel_wurf(moegliche_werte: &[u8; 21]) -> u8 {
