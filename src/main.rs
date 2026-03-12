@@ -150,9 +150,47 @@ fn ansagen_ki_spieler(moegliche_werte: &[u8; 21], echter_wurf: u8) -> u8 {
     return angesagte_zahl;
 }
 
-fn ansagen_spieler(moegliche_werte: &[u8; 21], echter_wurf: &u8) -> u8 {
-    let angesagte_zahl: u8;
-    let echter_wurf_index = moegliche_werte.get(echter_wurf);
+fn ansagen_spieler(moegliche_werte: &[u8; 21], echter_wurf: u8) -> u8 {
+    let mut angesagte_zahl: u8;
+    let mut ansage_str: String = String::new();
+    let echter_wurf_index: usize;
+    let mut ansage_index: usize;
+    if let Some(index) = moegliche_werte.iter().position(|&i| i == echter_wurf) {
+        echter_wurf_index = index;
+    } else {
+        panic!("Failed Reading the index of the dice roll");
+    }
+    loop {
+        println!("choose which dice roll yo want to announce");
+        ansage_str.clear();
+        io::stdin()
+            .read_line(&mut ansage_str)
+            .expect("Failed procesing user input for Announcement");
+        angesagte_zahl = match ansage_str.trim().parse() {
+            Ok(number_announcement) => number_announcement,
+            Err(_) => {
+                println!("Failed to convert the user input into an integar");
+                continue;
+            }
+        };
+        if moegliche_werte.contains(&angesagte_zahl) {
+        } else {
+            println!("Faield announced dice roll is Invalid");
+            continue;
+        }
+        if let Some(index) = moegliche_werte.iter().position(|&i| i == angesagte_zahl) {
+            ansage_index = index;
+        } else {
+            println!("Faield announced dice roll is Invalid");
+            continue;
+        }
+        if ansage_index < echter_wurf_index {
+            println!("Anouncement too low");
+            continue;
+        }
+        break;
+    }
+    return angesagte_zahl;
 }
 //
 fn wuerfel_wurf(moegliche_werte: &[u8; 21]) -> u8 {
